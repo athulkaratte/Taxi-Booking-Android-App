@@ -11,40 +11,21 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
                 git 'https://github.com/athulkaratte/Taxi-Booking-Android-App.git'
             }
         }
 
-        stage('Grant Permission') {
+        stage('Build') {
             steps {
-                sh 'chmod +x gradlew'
+                sh './gradlew clean assembleDebug --stacktrace'
             }
         }
 
-        stage('Verify Java Version') {
+        stage('Archive') {
             steps {
-                sh 'java -version'
-            }
-        }
-
-        stage('Clean') {
-            steps {
-                sh './gradlew clean'
-            }
-        }
-
-        stage('Build Debug APK') {
-            steps {
-                sh './gradlew assembleDebug'
-            }
-        }
-
-        stage('Archive APK') {
-            steps {
-                archiveArtifacts artifacts: 'app/build/outputs/apk/debug/*.apk',
-                                 fingerprint: true
+                archiveArtifacts artifacts: 'app/build/outputs/apk/debug/*.apk'
             }
         }
     }
