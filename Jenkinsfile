@@ -1,32 +1,35 @@
 pipeline {
     agent any
 
-    environment {
-        ANDROID_HOME = "/home/ubuntu/android-sdk"
-        GRADLE_USER_HOME = "/home/jenkins/.gradle"
+    tools {
+        jdk 'jdk21'
     }
 
-    tools {
-        jdk 'jdk17'
+    environment {
+        ANDROID_HOME = "/home/ubuntu/android-sdk"
     }
 
     stages {
 
         stage('Checkout Code') {
             steps {
-                echo "Cloning Repository..."
-                git branch: 'main',
-                    url: 'https://github.com/athulkaratte/Taxi-Booking-Android-App.git'
+                git 'https://github.com/athulkaratte/Taxi-Booking-Android-App.git'
             }
         }
 
-        stage('Grant Execute Permission') {
+        stage('Grant Permission') {
             steps {
                 sh 'chmod +x gradlew'
             }
         }
 
-        stage('Clean Project') {
+        stage('Verify Java Version') {
+            steps {
+                sh 'java -version'
+            }
+        }
+
+        stage('Clean') {
             steps {
                 sh './gradlew clean'
             }
@@ -38,26 +41,11 @@ pipeline {
             }
         }
 
-        stage('Verify APK') {
-            steps {
-                sh 'ls -la app/build/outputs/apk/debug/'
-            }
-        }
-
         stage('Archive APK') {
             steps {
                 archiveArtifacts artifacts: 'app/build/outputs/apk/debug/*.apk',
                                  fingerprint: true
             }
-        }
-    }
-
-    post {
-        success {
-            echo 'Build Successful ✅'
-        }
-        failure {
-            echo 'Build Failed ❌'
         }
     }
 }
